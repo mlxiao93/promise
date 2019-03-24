@@ -1,0 +1,24 @@
+{
+  "name": "promise",
+  "version": "1.0.0",
+  "description": "Promises/A+ implementation",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon app.js",
+    "test": "promises-aplus-tests adapter.js > test.log"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mlxiao93/promise.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mlxiao93/promise/issues"
+  },
+  "homepage": "https://github.com/mlxiao93/promise#readme",
+  "devDependencies": {
+    "nodemon": "^1.18.10",
+    "promises-aplus-tests": "^2.1.2"
+  }
+}
