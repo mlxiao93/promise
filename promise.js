@@ -21,7 +21,7 @@ function execCallback(promise) {
           reject(nextPromise, err);
         });
       } else {
-        resolve(nextPromise);
+        resolve(nextPromise, cbRes);
       }
     }
   });

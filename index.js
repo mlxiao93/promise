@@ -6,9 +6,21 @@ let promise = new Promise((resolve, reject) => {
 })
 
 promise.then(data => {
-  console.log('data: ', data)
-}, err => {
-  console.log('error: ', err)
+  return 1;
+}).then(data => {
+  console.log(data)
 })
 
-_resolve(123);
+promise.then(data => {
+  throw 2;
+}).then(null, err => {
+  console.log(err);
+})
+
+promise.then(data => {
+  return 3
+}).then(data => {
+  console.log(data)
+})
+
+_resolve('')
