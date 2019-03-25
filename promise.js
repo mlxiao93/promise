@@ -1,28 +1,30 @@
 function execCallback(promise) {
-  const defers = promise.defers;
-  while (defers.length > 0) {
-    const defer = defers.shift();
-    const nextPromise = defer.promise;
-    const callback = promise.state === 'fullfilled' ?  defer.onFullfilled : defer.onRejected;
-    if (typeof callback !== 'function')      // 2.2.1
-        return (promise.state === 'fullfilled' ? resolve : reject)(nextPromise, promise.data);
-    let cbRes;
-    try {
-      cbRes = callback(promise.data);
-    } catch (err) {
-      reject(nextPromise, err);
-      continue;
-    }
-    if (cbRes instanceof Promise) {
-      cbRes.then(data => {          // 当cbRes也是Promise时，保证nextPromise的状态与cbRes一致
-        resolve(nextPromise, data);
-      }, err => {
+  setTimeout(() => {     // 2.2.2.2、2.2.3.2、2.2.4
+    const defers = promise.defers;
+    while (defers.length > 0) {
+      const defer = defers.shift();
+      const nextPromise = defer.promise;
+      const callback = promise.state === 'fullfilled' ?  defer.onFullfilled : defer.onRejected;
+      if (typeof callback !== 'function')      // 2.2.1
+          return (promise.state === 'fullfilled' ? resolve : reject)(nextPromise, promise.data);
+      let cbRes;
+      try {
+        cbRes = callback(promise.data);
+      } catch (err) {
         reject(nextPromise, err);
-      });
-    } else {
-      resolve(nextPromise);
+        continue;
+      }
+      if (cbRes instanceof Promise) {
+        cbRes.then(data => {          // 当cbRes也是Promise时，保证nextPromise的状态与cbRes一致
+          resolve(nextPromise, data);
+        }, err => {
+          reject(nextPromise, err);
+        });
+      } else {
+        resolve(nextPromise);
+      }
     }
-  }
+  });
 }
 
 function resolve(promise, data) {
