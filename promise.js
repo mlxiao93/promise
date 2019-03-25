@@ -28,12 +28,14 @@ function execCallback(promise) {
 }
 
 function resolve(promise, data) {
+  if (promise.state !== 'pending') return; 
   promise.data = data;
   promise.state = 'fullfilled';
   execCallback(promise);
 }
 
 function reject(promise, err) {
+  if (promise.state !== 'pending') return; 
   promise.data = err;
   promise.state = 'rejected';
   execCallback(promise);
