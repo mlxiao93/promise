@@ -4,6 +4,8 @@ function execCallback(promise) {
     const defer = defers.shift();
     const nextPromise = defer.promise;
     const callback = promise.state === 'fullfilled' ?  defer.onFullfilled : defer.onRejected;
+    if (typeof callback !== 'function')      // 2.2.1
+        return (promise.state === 'fullfilled' ? resolve : reject)(nextPromise, promise.data);
     let cbRes;
     try {
       cbRes = callback(promise.data);
