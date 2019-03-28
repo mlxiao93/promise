@@ -10,6 +10,7 @@ function execCallback(promise) {
       let cbRes;
       try {
         cbRes = callback(promise.data);
+        if (cbRes === nextPromise) throw new TypeError();    // 2.3.1
       } catch (err) {
         reject(nextPromise, err);
         continue;
