@@ -1,3 +1,28 @@
+/**
+ * 处理thenanble， 如果data不是thenable，返回false
+ * @param promise: thanable执行后会对该promis产生影响
+ * @param data: callback的返回，或者resolve的传入值
+ */
+function doResolveThenable (promise, data) {    
+  if (data && /object|function/.test(typeof data)) {
+    let then;
+    try {
+      then = data.then;
+      if (typeof then !== 'function') return false;    // 非thenanble
+      then.call(data, data => { 
+        resolve(promise, data)
+      }, err => {
+        reject(promise, err)
+      })
+    } catch(err) {
+      reject(promise, err)
+    }
+  } else {
+    return false;   // 非thenanble
+  }
+  return true;
+}
+
 function execCallback(promise) {
   setTimeout(() => {     // 2.2.2.2、2.2.3.2、2.2.4
     const defers = promise.defers;
@@ -5,8 +30,10 @@ function execCallback(promise) {
       const defer = defers.shift();
       const nextPromise = defer.promise;
       const callback = promise.state === 'fullfilled' ?  defer.onFullfilled : defer.onRejected;
-      if (typeof callback !== 'function')      // 2.2.1
-          return (promise.state === 'fullfilled' ? resolve : reject)(nextPromise, promise.data);
+      if (typeof callback !== 'function') {     // 2.2.1
+        (promise.state === 'fullfilled' ? resolve : reject)(nextPromise, promise.data);
+        continue;
+      }
       let cbRes;
       try {
         cbRes = callback(promise.data);
@@ -15,13 +42,8 @@ function execCallback(promise) {
         reject(nextPromise, err);
         continue;
       }
-      if (cbRes instanceof Promise) {
-        cbRes.then(data => {          // 当cbRes也是Promise时，保证nextPromise的状态与cbRes一致
-          resolve(nextPromise, data);
-        }, err => {
-          reject(nextPromise, err);
-        });
-      } else {
+      let isThenable = doResolveThenable(nextPromise, cbRes);
+      if (!isThenable) {
         resolve(nextPromise, cbRes);
       }
     }
@@ -29,10 +51,13 @@ function execCallback(promise) {
 }
 
 function resolve(promise, data) {
-  if (promise.state !== 'pending') return; 
-  promise.data = data;
-  promise.state = 'fullfilled';
-  execCallback(promise);
+  if (promise.state !== 'pending') return;
+  let isThenable = doResolveThenable(promise, data);
+  if (!isThenable) {
+    promise.data = data;
+    promise.state = 'fullfilled';
+    execCallback(promise);
+  }
 }
 
 function reject(promise, err) {
