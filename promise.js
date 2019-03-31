@@ -9,11 +9,22 @@ function doResolveThenable (promise, data) {
     try {
       then = data.then;
       if (typeof then !== 'function') return false;    // 非thenanble
-      then.call(data, data => { 
-        resolve(promise, data)
-      }, err => {
-        reject(promise, err)
-      })
+
+      let executed = false;
+      try {
+        then.call(data, data => {
+          if (executed) return;
+          executed = true;
+          resolve(promise, data);
+        }, err => {
+          if (executed) return;
+          executed = true;
+          reject(promise, err);
+        })
+      } catch(err) {
+        !executed && reject(promise, err);
+      }
+
     } catch(err) {
       reject(promise, err)
     }

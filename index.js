@@ -2,20 +2,19 @@ const Promise = require('./promise');
 
 let promise = new Promise((resolve, reject) => {
   resolve(123);
-});
-let nextPromise = promise.then(data => {
-  return {
-    then(onFulfilled) {
-      onFulfilled({
-        then(onFulfilled) {
-          onFulfilled(2333);
-        }
-      });
-    }
-  };
 }).then(data => {
-  console.log('resolved', data);
+  return {
+    then(onFullfilled, onRejected) {
+      onFullfilled(111);
+      onFullfilled(222);
+      onRejected(333);
+      onRejected(444);
+      throw (666);
+    }
+  }
+}).then(data => {
+  console.log(data);
 }, err => {
-  console.log('rejected', err)
+  console.warn(err);
 })
 
